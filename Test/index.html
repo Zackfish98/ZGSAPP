@@ -1,0 +1,33 @@
+<!DOCTYPE html>                      <!-- Declares this is an HTML5 document -->
+<html lang="en">                     <!-- Root element, lang="en" specifies English language -->
+<head>                               <!-- Contains metadata about the page (not visible) -->
+  <meta charset="UTF-8">             <!-- Sets character encoding for special characters -->
+  <title>Module 1</title>            <!-- Title that appears in browser tab -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">  <!-- Load Google Fonts -->
+  <link rel="stylesheet" href="style.css">  <!-- Links to our CSS file for styling -->
+</head>
+<body>                               <!-- Contains all visible content on the page -->
+  <header>                           <!-- Header section for navigation/branding -->
+    <div class="left">Columbia GSAPP</div>  <!-- Left side of header with institution name -->
+    <div class="center">             <!-- Center section of header -->
+      Computational Design Practices<br>    <!-- Main title with line break -->
+      <span>Project Archive</span>   <!-- Subtitle in smaller text -->
+    </div>
+    <div class="right"><a href="#">About</a></div>  <!-- Right side with navigation link -->
+  </header>
+
+  <main>                             <!-- Main content area of the page -->
+    <div class="project-meta">2025</div>     <!-- Project year/date -->
+    <div class="project-title">Project Title</div>  <!-- Main project title -->
+    <div class="project-subtitle">Student Name</div>  <!-- Student name as subtitle -->
+    
+    <!-- Content sections -->
+    <div class="section-title">Interactive Demo</div>  <!-- Section heading -->
+    <p>Click the button below to see JavaScript in action:</p>  <!-- Instructions for user -->
+    <button id="demoButton">Click Me!</button>  <!-- Interactive button with unique ID -->
+    <div id="messageDisplay"></div>  <!-- Empty container for JavaScript to fill with messages -->
+  </main>
+  
+  <script src="script.js"></script>  <!-- Links to our JavaScript file for interactivity -->
+</body>
+</html>
