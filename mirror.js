@@ -81,6 +81,67 @@ const mirror = new Reflector(new THREE.PlaneGeometry(mirrorWidth, mirrorHeight),
 mirror.position.set(0, 1.55, wallZ + 0.03);
 scene.add(mirror);
 
+// Welcome message cast onto the mirror on first load -- hidden for good
+// (until the page is reloaded) once either desk item is opened.
+function createWelcomeTexture() {
+  const w = 860;
+  const h = 510;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+
+  // No background fill -- the mirror's own reflection shows through, so
+  // this reads as text floating on the glass rather than a paper window.
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'alphabetic';
+  ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+  ctx.shadowBlur = 8;
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 36px "Courier New", monospace';
+  const titleEndY = wrapText(
+    ctx,
+    'Welcome to the Precedent Study-Cleaning Emotional Data.',
+    50,
+    68,
+    w - 100,
+    44
+  );
+
+  ctx.font = '25px "Courier New", monospace';
+  const bodyEndY = wrapText(
+    ctx,
+    'This is a work by Elisa Giardina Papa exploring the hidden labor behind developing algorithms with "emotional intelligence". To best demonstrate the labor we have invited you to contribute to the algorithm itself through a series of Mini Task! Documentation is also provided for some context...something not everyone has the luxury of getting on these things.',
+    50,
+    titleEndY + 52,
+    w - 100,
+    34
+  );
+
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(50, bodyEndY + 30);
+  ctx.lineTo(w - 50, bodyEndY + 30);
+  ctx.stroke();
+
+  ctx.font = 'italic 25px "Courier New", monospace';
+  ctx.fillText('We appreciate your submission.', 50, bodyEndY + 68);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+const welcomeMaterial = new THREE.MeshBasicMaterial({ map: createWelcomeTexture(), transparent: true });
+const welcomePlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(mirrorWidth * 0.94, mirrorHeight * 0.9),
+  welcomeMaterial
+);
+welcomePlane.position.set(0, 1.57, wallZ + 0.035);
+scene.add(welcomePlane);
+
 // Watchers glimpsed through the two-way mirror -- hidden until the cursor
 // lingers over the top-left or top-right of the glass.
 function createSilhouetteTexture() {
@@ -256,7 +317,47 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
 }
 
 // Renders a section's title + body onto the sheet inside an opened folder.
+// An empty title leaves the sheet blank (just the paper) -- used before any
+// tab has been selected.
 function createSheetTexture(title, body) {
+  const size = 512;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d');
+
+  ctx.fillStyle = '#f7f4ec';
+  ctx.fillRect(0, 0, size, size);
+
+  if (title) {
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillStyle = '#2a2a2a';
+    ctx.font = 'bold 30px "Courier New", monospace';
+    const titleEndY = wrapText(ctx, title.toUpperCase(), 34, 56, size - 68, 36);
+
+    ctx.strokeStyle = '#c9c4b4';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(34, titleEndY + 22);
+    ctx.lineTo(size - 34, titleEndY + 22);
+    ctx.stroke();
+
+    if (body) {
+      ctx.font = '20px "Courier New", monospace';
+      ctx.fillStyle = '#1c1c1c';
+      wrapText(ctx, body, 34, titleEndY + 58, size - 68, 28);
+    }
+  }
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  return texture;
+}
+
+// Renders a metadata block (piece/artist/year) plus an instruction line onto
+// a folder's front sheet -- shown before any tab has been selected.
+function createFrontSheetTexture(metaLines, body) {
   const size = 512;
   const canvas = document.createElement('canvas');
   canvas.width = size;
@@ -269,19 +370,16 @@ function createSheetTexture(title, body) {
   ctx.textAlign = 'left';
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#2a2a2a';
-  ctx.font = 'bold 30px "Courier New", monospace';
-  const titleEndY = wrapText(ctx, title.toUpperCase(), 34, 56, size - 68, 36);
+  ctx.font = 'bold 22px "Courier New", monospace';
+  let metaY = 56;
+  metaLines.forEach((line) => {
+    ctx.fillText(line, 34, metaY);
+    metaY += 30;
+  });
 
-  ctx.strokeStyle = '#c9c4b4';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(34, titleEndY + 22);
-  ctx.lineTo(size - 34, titleEndY + 22);
-  ctx.stroke();
-
-  ctx.font = '20px "Courier New", monospace';
+  ctx.font = '17px "Courier New", monospace';
   ctx.fillStyle = '#1c1c1c';
-  wrapText(ctx, body, 34, titleEndY + 58, size - 68, 28);
+  wrapText(ctx, body, 34, metaY + 34, size - 68, 24);
 
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
@@ -307,9 +405,9 @@ const folderDefs = [
     rotationY: 0.08,
     stickyRotation: -0.09,
     label: 'Documentation',
-    body: 'Research and analysis on prior work. Full write-up coming soon.',
+    frontMeta: ['Piece: Cleaning Emotional Data', 'Artist: Elisa Giardina Papa', 'Year: 2020'],
+    frontBody: 'Please explore the following documentation to assist in carrying out your mini-task.',
     sections: [
-      { label: 'Rhetorical Analysis', color: '#c96a5a' },
       {
         label: 'Ontological Analysis',
         color: '#5a8ac9',
@@ -337,7 +435,34 @@ const folderDefs = [
           'This installation follows a long line of works which are primarily in video format but use physical installation pieces to shape perspective and expand on the messages being explored through the video piece.',
         ],
       },
-      { label: 'Discussion about Work', color: '#a25ac9' },
+      {
+        label: 'Discussion about Work',
+        color: '#a25ac9',
+        linkGroups: [
+          {
+            heading: 'Discussion about work by artist',
+            links: [
+              { title: 'Theoretical and Archival Research of Work', url: 'https://escholarship.org/uc/item/8614d1wp' },
+              { title: 'Ludwig Forum Aachen Interview', url: 'https://escholarship.org/uc/item/8614d1wp' },
+              { title: 'Talk: Surrogate Data and Ungovernable Data', url: 'https://carrier-bag.net/video/surrogate-data-and-ungovernable-data/' },
+              { title: 'Talk: Ai, Labor and Incomputable Data', url: 'https://www.youtube.com/watch?v=I_FvaF_AFcc' },
+              { title: 'Artist in Conversation: Elisa and Simon Denny', url: 'https://www.facebook.com/watch/?v=1729835950559374' },
+              { title: 'RISD Guest Lecture', url: 'https://www.youtube.com/watch?v=LCKySQIi-4c' },
+            ],
+          },
+          {
+            heading: 'Discussion about work by others',
+            links: [
+              { title: 'Conversations Around: Negative Optics in Vision Machines', url: 'https://link.springer.com/article/10.1007/s00146-020-01096-7' },
+              { title: 'Conversations Around: The Surrogate Labor of the Eye', url: 'https://www.tandfonline.com/doi/full/10.1080/20004214.2022.2156754' },
+              { title: 'Conversations Around: How to Make A Robot Feel-Emotion AI Deothorization and Minoritized Unfeeling', url: 'https://books.google.com/books?hl=en&lr=&id=aKkrEQAAQBAJ&oi=fnd&pg=PA11&dq=Cleaning+Emotional+Data+Elisa&ots=_mkf_bCNr2&sig=0wkCM4m0lWC3ivCOYqYOBHaUab8#v=onepage&q=Cleaning%20Emotional%20Data%20Elisa&f=false' },
+              { title: 'Book Review', url: 'https://watermark02.silverchair.com/ecps.r.53.pdf?token=AQECAHi208BE49Ooan9kkhW_Ercy7Dm3ZL_9Cf3qfKAc485ysgAAAxkwggMVBgkqhkiG9w0BBwagggMGMIIDAgIBADCCAvsGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMNYCW-0FGuZUNWIDJAgEQgIICzAjrJJnflAbRuh0VWAVFUs0wsAJdSgPGufouwcWCnvPV6ZwoZcGOs_fE7GFH_iiU_NPOmUxt3GgD0JCtd3rYrS_6w8YVQgP_iMOPY2BAoGRqZMj-cX138bf5akkb0Pz_akSoUlkHHTm-Z4jIUkZu0bp5LCFNULVtO24tdJxZvCOBUDvmQp2EAT2PGOBxuJpiFJvwZD9YL791AsiP4cT4n8V8blyocwkObntzG60l3mB6aarnN3sBVx6rjObNZEfy4PZ099n3AyLACG7YMURpQHdQllfnb0WT91hVqFTCSski26PrtzBnZswhV8mUZGRfipivkjysprk16dWhBL3UUKzqEvULpKWsF8Ix4Vd80aJKAOwi8JAprWpdHPzzN96g1pKfZThtj2skQg5yLBkoiUyPVUGlRhp5EdJQkTII5dEUxDzRxd8KRrHv9rS-IBj-EKIxeoTR2SoaoS_3wIzncuyOSC5eis13j2G-CELWlPycHrfWGuzRMfEWXLV1jWSSPfdRKIdRolLALMC0cS7t9pMWY_-PLXJB3CSRaiLL7Zjm1nmZsE_PxNSGSwipzC0ihRf5cTrbFLEt9lUf39zsyZjT2hbo95EcrlZ6PIzHEnvNyBMP5PL2FmNtuBDbVrMPx3mVmwB-DJi_RvfF-eQCh8q5CEPx7AjAQekkQLj1a2qw7NAUzLuu9gW0DTj7fcV9v-M6tK-VlzOcxaTzfQWjT1HHwhIwEPHtBqbGfl9EK_576BVSMlvsmzU1XlPotoTsE6xdkNaaD0_i-GUmkSQuKawgLYVTgsffc2FQSStpcI5HuXDvweId-NK5J3D9Q1Q1i9ivMX-gQIIQJ1nBs78CoHBuvIO7Czx0redaF400zNrSUpuJju6Qz0qRw0PFyC8Keg43tWVckYKNadCWafqXG_1GSfO6y6z00kZneRvctHMAR_9J5Scg5AzjUfye' },
+              { title: 'Work around work: Emotion Recognition and the Influence of Physical Exertion in Virtual Reality Exergaming', url: 'https://dl.acm.org/doi/full/10.1145/3613904.3642611' },
+              { title: 'Discussion of Category of Artistic Practice: A Scanner Darkly: Machine Vision and Emotional AI in Artistic Practices', url: 'https://www.muni.cz/en/research/publications/2526580' },
+            ],
+          },
+        ],
+      },
       { label: 'Archive', color: '#8a8a8a', href: 'archive.html' },
     ],
   },
@@ -358,7 +483,7 @@ const folders = folderDefs.map((def) => {
   group.add(backPanel);
 
   const sheetMaterial = new THREE.MeshStandardMaterial({
-    map: createSheetTexture(def.label, def.body),
+    map: def.frontMeta ? createFrontSheetTexture(def.frontMeta, def.frontBody) : createSheetTexture('', ''),
     roughness: 0.95,
     metalness: 0,
   });
@@ -409,7 +534,6 @@ const folders = folderDefs.map((def) => {
     tabs,
     sheetMaterial,
     label: def.label,
-    body: def.body,
     sections,
     hoverAmount: 0,
     openProgress: 0,
@@ -464,7 +588,7 @@ const remoteDef = {
   rotationY: -0.06,
   label: 'Mini-task',
   buttons: [
-    { label: 'Relational Diagram', color: '#e5e1d6', mirrorBody: 'Relational Diagram — content coming soon.' },
+    { label: 'Relational Diagram', color: '#e5e1d6', diagram: true },
     { label: 'Wider Practice Similarities', color: '#e0973c', questionnaire: true },
   ],
 };
@@ -519,50 +643,6 @@ const remote = (() => {
 
 const deskItems = [...folders, remote];
 
-// A plane in front of the mirror that shows whatever content a remote
-// button "casts" onto it -- hidden until a button is pressed.
-function createMirrorContentTexture(title, body) {
-  const w = 820;
-  const h = 506;
-  const canvas = document.createElement('canvas');
-  canvas.width = w;
-  canvas.height = h;
-  const ctx = canvas.getContext('2d');
-
-  ctx.fillStyle = '#f2efe6';
-  ctx.fillRect(0, 0, w, h);
-
-  ctx.textAlign = 'left';
-  ctx.textBaseline = 'alphabetic';
-  ctx.fillStyle = '#242424';
-  ctx.font = 'bold 46px "Courier New", monospace';
-  const titleEndY = wrapText(ctx, title.toUpperCase(), 50, 90, w - 100, 54);
-
-  ctx.strokeStyle = '#c9c4b4';
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(50, titleEndY + 30);
-  ctx.lineTo(w - 50, titleEndY + 30);
-  ctx.stroke();
-
-  ctx.font = '30px "Courier New", monospace';
-  ctx.fillStyle = '#1c1c1c';
-  wrapText(ctx, body, 50, titleEndY + 80, w - 100, 40);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.colorSpace = THREE.SRGBColorSpace;
-  return texture;
-}
-
-const mirrorContentMaterial = new THREE.MeshBasicMaterial();
-const mirrorContentPlane = new THREE.Mesh(
-  new THREE.PlaneGeometry(mirrorWidth * 0.94, mirrorHeight * 0.9),
-  mirrorContentMaterial
-);
-mirrorContentPlane.position.set(0, 1.57, wallZ + 0.035);
-mirrorContentPlane.visible = false;
-scene.add(mirrorContentPlane);
-
 const mirrorViewPosition = new THREE.Vector3(0, 1.55, -0.9);
 const mirrorLookTarget = new THREE.Vector3(0, 1.55, wallZ + 0.03);
 
@@ -585,6 +665,7 @@ const quizSteps = [
     question:
       "Listen to the video. How is this similar to the artist's existing work of Cleaning Emotional Data? If you have not familiarized yourself with the work, please do so in the documentation.",
     type: 'question',
+    video: '207163407',
     insight:
       'When thinking about what makes a person feel close or loved by another, is it the individual acts of love and care, or is it the trust and relation with the person just as much a part of what makes the acts of love feel "real?" Elisa shows how separating the context in which emotional acts and feelings emerge corrupts its emotional value in both pieces. In this piece the bot is using common phrases which are labeled as emotional triggers to establish a relationship with the user. As you heard, the bot is jumping the gun. It sounds unnatural, but to the algorithm it is simply following the basic instructions of how to establish connection: say the nice things, tell them you’re thinking of them, tell them you’re hurt, etc. This relates to the precedent work because similarly, the algorithms are isolating emotion as a series of individual actions, not holding it within the broader context.',
   },
@@ -594,6 +675,7 @@ const quizSteps = [
     question:
       'Listen to the video. What data extraction do you think the artist is being critical of here? How does this piece relate to the Cleaning Emotional Data work?',
     type: 'question',
+    video: '237678786',
     insight:
       'Elisa is highlighting how sleep and biological data have become a new frontier of sorts for extraction. Often the extraction method is masked to be seen as "self improvement." Here she switches the view to the algorithm’s perspective — what it’s listening to, and what it’s interested in. Sleep has been seen as one of our most private activities. It’s something that even we see as a mystery. This represents how tech has not just intruded on one of the more intimate portions of our lives but turned the act of sleeping into a labor itself. We consent to this out of an attempt to "optimize" our lives. But is optimization just another method to get us to extract more of ourselves?',
   },
@@ -626,12 +708,33 @@ function generateDumbSummary(userText, insightText) {
 const quizOverlay = document.getElementById('quiz-overlay');
 const quizHeading = document.getElementById('quiz-heading');
 const quizQuestion = document.getElementById('quiz-question');
+const quizVideoLink = document.getElementById('quiz-video-link');
+const quizVideoBtn = document.getElementById('quiz-video-btn');
 const quizInputArea = document.getElementById('quiz-input-area');
 const quizInsight = document.getElementById('quiz-insight');
 const quizInsightText = document.getElementById('quiz-insight-text');
 const quizSummary = document.getElementById('quiz-summary');
 const quizSummaryText = document.getElementById('quiz-summary-text');
 const quizNextBtn = document.getElementById('quiz-next-btn');
+
+const videoOverlay = document.getElementById('video-overlay');
+const videoIframe = document.getElementById('video-iframe');
+const videoClose = document.getElementById('video-close');
+
+function openVideo(vimeoId) {
+  videoIframe.src = `https://player.vimeo.com/video/${vimeoId}?autoplay=1`;
+  videoOverlay.classList.add('visible');
+}
+
+function closeVideo() {
+  videoOverlay.classList.remove('visible');
+  videoIframe.src = '';
+}
+
+videoClose.addEventListener('click', closeVideo);
+videoOverlay.addEventListener('click', (event) => {
+  if (event.target === videoOverlay) closeVideo();
+});
 
 let quizStepIndex = 0;
 let quizShowingResult = false;
@@ -643,6 +746,9 @@ function renderQuizStep() {
   quizInputArea.innerHTML = '';
   quizInsight.hidden = true;
   quizSummary.hidden = true;
+
+  quizVideoLink.hidden = !step.video;
+  quizVideoBtn.onclick = step.video ? () => openVideo(step.video) : null;
 
   if (step.type === 'intro') {
     const beginBtn = document.createElement('button');
@@ -701,6 +807,31 @@ function startQuestionnaire() {
   quizShowingResult = false;
   renderQuizStep();
   quizOverlay.classList.add('visible');
+}
+
+// Relational Diagram cast onto the mirror by the remote -- a flowchart with
+// a fixed yes/explain prompt. Any response (a click or typed explanation)
+// leads to the same fixed acknowledgement.
+const diagramOverlay = document.getElementById('diagram-overlay');
+const diagramInputArea = document.getElementById('diagram-input-area');
+const diagramThanks = document.getElementById('diagram-thanks');
+const diagramYesBtn = document.getElementById('diagram-yes-btn');
+const diagramOtherInput = document.getElementById('diagram-other-input');
+const diagramSubmitBtn = document.getElementById('diagram-submit-btn');
+
+function submitDiagramResponse() {
+  diagramInputArea.hidden = true;
+  diagramThanks.hidden = false;
+}
+
+diagramYesBtn.addEventListener('click', submitDiagramResponse);
+diagramSubmitBtn.addEventListener('click', submitDiagramResponse);
+
+function startDiagram() {
+  diagramInputArea.hidden = false;
+  diagramThanks.hidden = true;
+  diagramOtherInput.value = '';
+  diagramOverlay.classList.add('visible');
 }
 
 // Mouse-look: subtle head-turn mapped to cursor position
@@ -801,10 +932,34 @@ function showContentOverlay(section) {
 
   contentHeading.textContent = section.label;
   contentParagraphs.innerHTML = '';
-  section.paragraphs.forEach((text) => {
+  (section.paragraphs || []).forEach((text) => {
     const p = document.createElement('p');
     p.textContent = text;
     contentParagraphs.appendChild(p);
+  });
+
+  (section.linkGroups || []).forEach((group) => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'content-link-group';
+
+    const heading = document.createElement('h3');
+    heading.textContent = group.heading;
+    groupEl.appendChild(heading);
+
+    const list = document.createElement('ul');
+    group.links.forEach((link) => {
+      const item = document.createElement('li');
+      const anchor = document.createElement('a');
+      anchor.href = link.url;
+      anchor.textContent = link.title;
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      item.appendChild(anchor);
+      list.appendChild(item);
+    });
+    groupEl.appendChild(list);
+
+    contentParagraphs.appendChild(groupEl);
   });
 
   showingContent = true;
@@ -812,6 +967,17 @@ function showContentOverlay(section) {
   hideTabTooltip();
   contentOverlay.classList.add('visible');
 }
+
+// Clicking outside the popup card returns to the open folder's tab view
+// (rather than closing the folder entirely).
+function hideContentOverlay() {
+  showingContent = false;
+  contentOverlay.classList.remove('visible');
+}
+
+contentOverlay.addEventListener('click', (event) => {
+  if (event.target === contentOverlay) hideContentOverlay();
+});
 
 function showTabTooltip(screenX, screenY, label) {
   tabTooltip.textContent = label;
@@ -829,7 +995,7 @@ function selectSection(folder, section) {
     window.location.href = section.href;
     return;
   }
-  if (section.images || section.paragraphs) {
+  if (section.images || section.paragraphs || section.linkGroups) {
     showContentOverlay(section);
     return;
   }
@@ -842,16 +1008,9 @@ function selectSection(folder, section) {
 // camera pans over to look at it there instead of at the remote.
 function pressRemoteButton(section) {
   if (section.questionnaire) {
-    mirrorContentPlane.visible = false;
     startQuestionnaire();
-  } else {
-    if (mirrorContentMaterial.map) mirrorContentMaterial.map.dispose();
-    mirrorContentMaterial.map = createMirrorContentTexture(
-      section.label,
-      section.mirrorBody || `${section.label} — content coming soon.`
-    );
-    mirrorContentMaterial.needsUpdate = true;
-    mirrorContentPlane.visible = true;
+  } else if (section.diagram) {
+    startDiagram();
   }
   viewingMirror = true;
   hoveredTab = null;
@@ -862,15 +1021,17 @@ function openItem(index) {
   openItemIndex = index;
   popup.classList.remove('visible');
   folderClose.classList.add('visible');
+  welcomePlane.visible = false;
 }
 
 function closeFocus() {
   openItemIndex = -1;
   viewingMirror = false;
   showingContent = false;
-  mirrorContentPlane.visible = false;
   quizOverlay.classList.remove('visible');
   contentOverlay.classList.remove('visible');
+  diagramOverlay.classList.remove('visible');
+  closeVideo();
   hoveredTab = null;
   folderClose.classList.remove('visible');
   hideTabTooltip();
@@ -878,11 +1039,20 @@ function closeFocus() {
 
 folderClose.addEventListener('click', closeFocus);
 window.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape') closeFocus();
+  if (event.key !== 'Escape') return;
+  if (videoOverlay.classList.contains('visible')) {
+    closeVideo();
+    return;
+  }
+  closeFocus();
 });
 renderer.domElement.addEventListener('click', () => {
   if (viewingMirror) return;
   if (openItemIndex !== -1) {
+    if (showingContent) {
+      hideContentOverlay();
+      return;
+    }
     if (hoveredTab) {
       const item = deskItems[openItemIndex];
       if (item.type === 'remote') {

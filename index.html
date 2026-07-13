@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Interview Room</title>
-    <link rel="stylesheet" href="mirror.css?v=4">
+    <link rel="stylesheet" href="mirror.css?v=9">
 </head>
 <body>
     <div id="scene-root"></div>
@@ -24,6 +24,10 @@
             </div>
             <div class="quiz-body">
                 <p class="quiz-question" id="quiz-question"></p>
+
+                <div class="quiz-video-link" id="quiz-video-link" hidden>
+                    <button class="quiz-video-btn" id="quiz-video-btn">&#9654; Watch Video</button>
+                </div>
 
                 <div class="quiz-input-area" id="quiz-input-area"></div>
 
@@ -56,6 +60,76 @@
         </div>
     </div>
 
+    <div id="diagram-overlay">
+        <div class="diagram-card">
+            <div class="diagram-left">
+                <h2 class="content-heading">Relational Diagram</h2>
+                <p class="diagram-question">Does this seem right to you? If so click YES, if not write what you would change in Other.</p>
+                <div class="diagram-input-area" id="diagram-input-area">
+                    <button class="diagram-btn" id="diagram-yes-btn">Yes</button>
+                    <textarea class="diagram-textarea" id="diagram-other-input" placeholder="Other — what would you change?"></textarea>
+                    <button class="diagram-btn" id="diagram-submit-btn">Submit</button>
+                </div>
+                <p class="diagram-thanks" id="diagram-thanks" hidden>Thank you for your submission.</p>
+            </div>
+            <div class="diagram-right">
+                <svg id="diagram-svg" viewBox="0 0 920 360" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <marker id="diagram-arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                            <path d="M0,0 L10,5 L0,10 z" fill="#1c1c1c" />
+                        </marker>
+                    </defs>
+
+                    <line x1="183" y1="22" x2="193" y2="22" class="diagram-connector" />
+                    <line x1="371" y1="22" x2="381" y2="22" class="diagram-connector" />
+                    <line x1="593" y1="22" x2="603" y2="22" class="diagram-connector" />
+                    <line x1="775" y1="22" x2="785" y2="22" class="diagram-connector" />
+
+                    <text x="40" y="16" class="diagram-label">Low wage, gig</text>
+                    <text x="40" y="32" class="diagram-label">workers–"cleaning" data</text>
+
+                    <text x="282" y="14" class="diagram-label" text-anchor="middle">Dataset companies</text>
+                    <text x="282" y="30" class="diagram-label" text-anchor="middle">(like: to train algorithms)</text>
+
+                    <text x="487" y="24" class="diagram-label-strong" text-anchor="middle">"Cleaned" Emotional Data</text>
+
+                    <text x="689" y="12" class="diagram-label" text-anchor="middle">Companies integrating</text>
+                    <text x="689" y="28" class="diagram-label" text-anchor="middle">emotional understanding in</text>
+                    <text x="689" y="44" class="diagram-label" text-anchor="middle">algorithms or applications</text>
+
+                    <text x="805" y="24" class="diagram-label" text-anchor="middle">Users</text>
+
+                    <rect x="192" y="90" width="180" height="110" rx="4" class="diagram-box" />
+                    <text x="210" y="118" class="diagram-box-text">Collection of large</text>
+                    <text x="210" y="136" class="diagram-box-text">datasets</text>
+                    <line x1="282" y1="90" x2="282" y2="46" class="diagram-arrow" marker-end="url(#diagram-arrowhead)" />
+
+                    <rect x="30" y="210" width="180" height="120" rx="4" class="diagram-box" />
+                    <text x="48" y="238" class="diagram-box-text">Other companies</text>
+                    <text x="48" y="256" class="diagram-box-text">collecting data on their</text>
+                    <text x="48" y="274" class="diagram-box-text">users</text>
+                    <path d="M 190,220 Q 195,188 215,198" class="diagram-arrow" fill="none" marker-end="url(#diagram-arrowhead)" />
+
+                    <rect x="460" y="210" width="210" height="120" rx="4" class="diagram-box" />
+                    <text x="478" y="238" class="diagram-box-text">Company collecting data</text>
+                    <text x="478" y="256" class="diagram-box-text">from the user</text>
+                    <path d="M 470,220 Q 410,188 392,198" class="diagram-arrow" fill="none" marker-end="url(#diagram-arrowhead)" />
+
+                    <path d="M 805,36 C 840,120 760,150 650,205" class="diagram-arrow" fill="none" marker-end="url(#diagram-arrowhead)" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div id="video-overlay">
+        <div class="video-card">
+            <button class="video-close" id="video-close" aria-label="Close video">&times;</button>
+            <div class="video-frame">
+                <iframe id="video-iframe" src="" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
     <script type="importmap">
     {
         "imports": {
@@ -64,6 +138,6 @@
         }
     }
     </script>
-    <script type="module" src="mirror.js?v=18"></script>
+    <script type="module" src="mirror.js?v=36"></script>
 </body>
 </html>
