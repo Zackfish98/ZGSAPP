@@ -2,75 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Module 1</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Interview Room</title>
+    <link rel="stylesheet" href="mirror.css?v=4">
 </head>
-
 <body>
-    <header>
-        <div class="left">Columbia GSAPP</div>
-        <div class="center">
-            Computational Design Practices<br>
-            <span>Project Archive</span>
+    <div id="scene-root"></div>
+
+    <div id="precedent-popup">
+        <span>Precedent Study-Cleaning Emotional Data</span>
+    </div>
+
+    <button id="folder-close" aria-label="Close">&times;</button>
+
+    <div id="tab-tooltip"></div>
+
+    <div id="quiz-overlay">
+        <div class="quiz-card">
+            <div class="quiz-header">
+                <span class="quiz-heading" id="quiz-heading"></span>
+            </div>
+            <div class="quiz-body">
+                <p class="quiz-question" id="quiz-question"></p>
+
+                <div class="quiz-input-area" id="quiz-input-area"></div>
+
+                <div class="quiz-insight" id="quiz-insight" hidden>
+                    <p class="quiz-label">Interesting points! Here is what I saw:</p>
+                    <p id="quiz-insight-text"></p>
+                </div>
+
+                <div class="quiz-summary" id="quiz-summary" hidden>
+                    <p class="quiz-label">This is my new understanding of the question. Thanks for providing some useful data!</p>
+                    <p class="quiz-generated" id="quiz-summary-text"></p>
+                    <button class="quiz-btn" id="quiz-next-btn"></button>
+                </div>
+            </div>
         </div>
-        <div class="right"><a href="#">About</a></div>
-    </header>
+    </div>
 
-    <main>
-        <div class="project-meta">2026</div>
-        <div class="project-title">Cleaning Emotional Data-Precendent Study</div>
-        <div class="project-subtitle">Zach Lewis</div>
-        <div class="advisor">Advisor<br><strong>Catherine Griffiths & Celeste Layne</strong></div>
-        <div class="section-title">Abstract</div>
-        <p>TBD</p>
-        <div class="section-title">Motivation</div>
-        <p>I'm curious in the ways emotional data have been gathered for models and the limitations of that form of gathering. Furthermore I'm curious how the installation was recieved.</p>
-<div class="section-title">Ontological analysis</div>
-<p>The project is an installation piece consisting of three screens positioned behind an opaquely metallic fabric. On the screens there are samples of microtask querying on emotional responses to images, 3D representations of emotional response and task to identify or explain objects.</p>
-<div class="section-title">Historical and Contextual analysis</div>
-<p>The piece, produced in 2020 was at a time when "intelligent" models that can understand the nuances of the world were only beginning to appear in public discourse. To many, representations of human emotion like in animated characters or chatbots were seen as novel but ultimately clunky in their representation of emotion. Companies producing these algorithms discovered that the most efficient way to "clean" large datasets, which these models were trained on, to be "smarter" is to outsource this labor to underpaid labor, primarily in the Global South. Elisa Papa wanted to highlight the unseen labor undertaken for developing artificial intelligence infrastructures.</p>
-<p>Particularly she wanted to highlight how the training of these datasets is rooted in the idea that emotions are universal- a flawed theory dating back to the 1900's. On top of that their method of production is spread amongst parts of the world that might not even understand the nuances of expression by other cultures. This helps contribute to understanding how algorithms informed by human input can still have unclarities, just as people do. But this effect is compounded by the labor being spread across the diaspora of the Global South in search for cheap labor first, then the algorithm's quality.</p>
-<div class="section-title">Visual and Aesthetic representation</div>
-<p>The representation uses the fabric to create a physical separation between the observer and the work as a visual representation of the separation that exists between users of platforms that use these datasets and the labor it takes to produce them. That separation is expanded upon further by embroidered descriptions of facial micro-expressions produced by the algorithm. To signify the abstraction of how the algorithm interprets emotional input the artist uses untranslatable expressions from the artist native Sicilian tongue.</p>
-<p>On the other side the screen sits at the bottom of a tripod holding the structure of the fabric, similar in appearance to a portrait backdrop, a setup traditionally associated with capturing the character of an individual. The "back end" of the installation is intentionally placed in an untidy manner to express the feeling of being "behind a curtain."</p>
-<p>The screen then displays a sampling of the microtask the artist carried out to inform these algorithms of emotional input with the payment for the individual task. The task ranged from rating what emotion the image evokes to recording her own image to animate three dimensional characters.</p>
-<p>This installation follows a long line of works which are primarily in video format but use physical installation pieces to shape perspective and expand on the messages being explored through the video piece.</p>
-<div class="section-title">Precedents</div>
-<div class="precedent-entry">
-    <p class="precedent-name"><strong>Cleaning Emotional Data</strong></p>
-    <p>
-        Creator: Elisa Giardina Papa<br>
-        Year: 2020<br>
-        Format: Installation work with fabricated sets and interactive digital interface<br>
-        Intended Audience: Broader public
-    </p>
+    <div id="content-overlay">
+        <div class="content-card">
+            <div class="content-carousel">
+                <div class="carousel-track" id="carousel-track"></div>
+                <button class="carousel-btn carousel-prev" id="carousel-prev" aria-label="Previous image">&#8249;</button>
+                <button class="carousel-btn carousel-next" id="carousel-next" aria-label="Next image">&#8250;</button>
+                <div class="carousel-dots" id="carousel-dots"></div>
+            </div>
+            <div class="content-body">
+                <h2 class="content-heading" id="content-heading"></h2>
+                <div id="content-paragraphs"></div>
+            </div>
+        </div>
+    </div>
 
-    <p><strong>Discussion about work by artist</strong></p>
-    <ul>
-        <li>Theoretical and Archival Research of Work</li>
-        <li>Ludwig Forum Aachen Interview</li>
-        <li>Talk: Surrogate Data and Ungovernable Data</li>
-        <li>Talk: AI, Labor and Incomputable Data</li>
-        <li>Artist in Conversation: Elisa and Simon Denny</li>
-        <li>RISD Guest Lecture</li>
-    </ul>
-
-    <p><strong>Discussion about work by others</strong></p>
-    <ul>
-        <li>Conversations Around: Negative Optics in Vision Machines</li>
-        <li>Conversations Around: The Surrogate Labor of the Eye</li>
-        <li>Conversations Around: How to Make A Robot Feel—Emotion AI Deothorization and Minoritized Unfeeling</li>
-        <li>Book Review</li>
-        <li>Work around work: Emotion Recognition and the Influence of Physical Exertion in Virtual Reality Exergaming</li>
-        <li>Discussion of Category of Artistic Practice: A Scanner Darkly: Machine Vision and Emotional AI in Artistic Practices</li>
-    </ul>
-</div>
-    </main>
-
-    <script src="script.js"></script>
-  <!-- This links our JavaScript file to the HTML page -->
-  <!-- The script tag is placed at the end of the body so the HTML loads first -->
-  <!-- src="script.js" tells the browser to load and run our JavaScript file -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="mirror.js?v=18"></script>
 </body>
 </html>

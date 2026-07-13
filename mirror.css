@@ -1,0 +1,339 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #1a1b1d;
+}
+
+#scene-root {
+  width: 100vw;
+  height: 100vh;
+}
+
+#scene-root canvas {
+  display: block;
+}
+
+/* Text that fades in once the camera looks down at the desk */
+#precedent-popup {
+  position: fixed;
+  left: 50%;
+  bottom: 14%;
+  transform: translate(-50%, 8px);
+  padding: 8px 14px;
+  background: #0a0a0a;
+  color: #f2f2f2;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 13px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+#precedent-popup.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* Close button shown while a folder is open in the 3D scene */
+#folder-close {
+  position: fixed;
+  top: 24px;
+  right: 28px;
+  width: 34px;
+  height: 34px;
+  background: #0a0a0a;
+  border: none;
+  color: #f2f2f2;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+
+#folder-close.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+/* Tooltip that follows whichever 3D tab is currently hovered */
+#tab-tooltip {
+  position: fixed;
+  padding: 6px 12px;
+  background: #0a0a0a;
+  color: #f2f2f2;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+  transform: translate(-50%, -135%);
+  z-index: 20;
+}
+
+#tab-tooltip.visible {
+  opacity: 1;
+}
+
+/* Mini-task questionnaire, shown "on" the two-way mirror once a remote
+   button casts it there. */
+#quiz-overlay {
+  position: fixed;
+  top: 6%;
+  left: 14%;
+  right: 14%;
+  bottom: 6%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 15;
+}
+
+#quiz-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.quiz-card {
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  background: #100f10;
+  color: #f2f2f2;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.quiz-header {
+  position: sticky;
+  top: 0;
+  background: #e086c3;
+  color: #1a1220;
+  padding: 16px 22px;
+}
+
+.quiz-heading {
+  font-size: 18px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.quiz-body {
+  padding: 22px 26px 28px;
+}
+
+.quiz-question {
+  font-size: 15px;
+  font-weight: bold;
+  line-height: 1.6;
+  margin: 0 0 18px;
+}
+
+.quiz-input-area {
+  margin-bottom: 18px;
+}
+
+.quiz-btn {
+  background: #e086c3;
+  color: #1a1220;
+  border: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+.quiz-btn:hover {
+  background: #ec9ed0;
+}
+
+.quiz-textarea {
+  width: 100%;
+  min-height: 90px;
+  background: #1c1a1d;
+  color: #f2f2f2;
+  border: 1px solid #3a373b;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 12px;
+  box-sizing: border-box;
+  resize: vertical;
+  margin-bottom: 12px;
+}
+
+.quiz-textarea:focus {
+  outline: 1px solid #e086c3;
+}
+
+.quiz-insight,
+.quiz-summary {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid #322f33;
+}
+
+.quiz-label {
+  font-size: 13px;
+  font-weight: bold;
+  margin: 0 0 10px;
+}
+
+.quiz-insight p:not(.quiz-label),
+.quiz-summary p:not(.quiz-label) {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #c7c3c8;
+  margin: 0 0 14px;
+}
+
+.quiz-generated {
+  color: #a9d9c4 !important;
+  font-style: italic;
+}
+
+/* Rich content shown "on" a folder's sheet -- an image carousel plus
+   scrollable text, styled like paper rather than the mirror's pink quiz. */
+#content-overlay {
+  position: fixed;
+  top: 6%;
+  left: 14%;
+  right: 14%;
+  bottom: 6%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+  z-index: 15;
+}
+
+#content-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.content-card {
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  background: #f7f4ec;
+  color: #1c1c1c;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.content-carousel {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #0a0a0a;
+  overflow: hidden;
+}
+
+.carousel-track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.carousel-img.active {
+  opacity: 1;
+}
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  background: rgba(10, 10, 10, 0.55);
+  color: #f2f2f2;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.carousel-btn:hover {
+  background: rgba(10, 10, 10, 0.8);
+}
+
+.carousel-prev {
+  left: 12px;
+}
+
+.carousel-next {
+  right: 12px;
+}
+
+.carousel-dots {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(242, 242, 242, 0.4);
+  cursor: pointer;
+  padding: 0;
+  border: none;
+}
+
+.carousel-dot.active {
+  background: #f2f2f2;
+}
+
+.content-body {
+  padding: 22px 26px 30px;
+}
+
+.content-heading {
+  font-size: 16px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin: 0 0 18px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #c9c4b4;
+}
+
+.content-body p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: #1c1c1c;
+  margin: 0 0 16px;
+}

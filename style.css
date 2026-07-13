@@ -3,7 +3,7 @@
 
 /* Style the entire body of the webpage */
 body {
-  font-family: 'Roboto', sans-serif;  /* Set the font to Roboto, with sans-serif as backup */
+  font-family: 'Arial Nova', sans-serif;  /* Set the font to Roboto, with sans-serif as backup */
   background: linear-gradient(135deg, #ff69b4, #ffff00);  /* Gradient from pink to yellow */
   color: #111;                        /* Set text color to dark gray (almost black) */
   margin: 0;                          /* Remove default spacing around the body */
